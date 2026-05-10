@@ -18,7 +18,7 @@
 
 ## Vídeo de la Práctica
 
-[▶ Ver vídeo de la teleoperación completa (~425 s)](https://github.com/JavideuS/practicafinal-modelado/releases/download/demo/modeladop3.mp4)
+https://github.com/user-attachments/assets/7c082c8c-55c3-4856-98b4-9f0e293d2854
 
 ---
 
@@ -99,7 +99,7 @@ Hace que los análisis sean más reproducibles y explicables.
 
 ### Posición de las Ruedas vs Tiempo
 
-![Gráfica posición de ruedas](screenshots/graphs/wheel_positions.png)
+![Gráfica posición de ruedas](screenshots/graphs/grafica_posicion_ruedas.png)
 
 La gráfica muestra la posición angular acumulada (en radianes) de las cuatro ruedas a lo largo de los ~425 s de la teleoperación. Se distinguen claramente tres fases:
 
@@ -113,7 +113,7 @@ La gráfica muestra la posición angular acumulada (en radianes) de las cuatro r
 
 ### Aceleración (IMU) vs Tiempo
 
-![Gráfica aceleración IMU](screenshots/graphs/acceleration_linear.png)
+![Gráfica aceleración IMU](screenshots/graphs/grafica_aceleracion_imu.png)
 
 La gráfica muestra los tres ejes de aceleración registrados por la IMU durante los ~425 s de operación:
 
