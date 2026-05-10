@@ -2,10 +2,10 @@ rosbag2_bagfile_information:
   version: 9
   storage_identifier: mcap
   duration:
-    nanoseconds: 362642327242
+    nanoseconds: 425121876482
   starting_time:
-    nanoseconds_since_epoch: 1778445416573927629
-  message_count: 20703
+    nanoseconds_since_epoch: 1778590127277134526
+  message_count: 22536
   topics_with_message_count:
     - topic_metadata:
         name: /cmd_vel
@@ -28,7 +28,7 @@ rosbag2_bagfile_information:
               nsec: 854775807
             avoid_ros_namespace_conventions: false
         type_description_hash: RIHS01_9c45bf16fe0983d80e3cfe750d6835843d265a9a6c46bd2e609fcddde6fb8d2a
-      message_count: 2470
+      message_count: 1155
     - topic_metadata:
         name: /imu
         type: sensor_msgs/msg/Imu
@@ -50,7 +50,7 @@ rosbag2_bagfile_information:
               nsec: 854775807
             avoid_ros_namespace_conventions: false
         type_description_hash: RIHS01_7d9a00ff131080897a5ec7e26e315954b8eae3353c3f995c55faf71574000b5b
-      message_count: 10984
+      message_count: 12880
     - topic_metadata:
         name: /joint_states
         type: sensor_msgs/msg/JointState
@@ -72,17 +72,17 @@ rosbag2_bagfile_information:
               nsec: 854775807
             avoid_ros_namespace_conventions: false
         type_description_hash: RIHS01_a13ee3a330e346c9d87b5aa18d24e11690752bd33a0350f11c5882bc9179260e
-      message_count: 7249
+      message_count: 8501
   compression_format: ""
   compression_mode: ""
   relative_file_paths:
-    - practica3_rosbag2_0.mcap
+    - practica3_rosbag3_0.mcap
   files:
-    - path: practica3_rosbag2_0.mcap
+    - path: practica3_rosbag3_0.mcap
       starting_time:
-        nanoseconds_since_epoch: 1778445416573927629
+        nanoseconds_since_epoch: 1778590127277134526
       duration:
-        nanoseconds: 362642327242
-      message_count: 20703
+        nanoseconds: 425121876482
+      message_count: 22536
   custom_data: ~
   ros_distro: jazzy
