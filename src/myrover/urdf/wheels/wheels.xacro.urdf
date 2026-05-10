@@ -1,0 +1,177 @@
+<?xml version="1.0"?>
+<!--  Note we are pairing rin and wheels in one xacro file -->
+<!-- They are interdependent, they need each other to be complete/useful -->
+<!--
+  wheels.xacro.urdf
+  ─────────────────────────────────────────────────────────────────────────────
+  Blueprints for the wheel sub-assembly.
+
+  Macros defined here:
+    · rin_link        – the axle ring (cylindrical hub) link only
+    · wheel_link      – the torus wheel link only
+    · wheel_assembly  – rin + wheel + the continuous joint between them
+                        (highest-level building block; use this in the robot)
+
+  Orientation note
+  ────────────────
+  The chassis and one side were modelled in Blender, the other side was mirrored.
+  The torus mesh is NOT symmetric under that mirror, so a 180° flip around X is
+  needed for the left wheels:
+      right side → orient="0 0 0"
+      left  side → orient="${pi} 0 0"   (≈ "3.14159 0 0")
+  The rin (cylinder hub) IS symmetric, so orient is always "0 0 0" there.
+
+  Joint axis note
+  ───────────────
+  The wheel joint spins around Z.  For correct differential drive the axis
+  direction must match which side the wheel is on:
+      right side → joint_axis="0 0  1"
+      left  side → joint_axis="0 0 -1"
+-->
+<robot name="wheels"
+  xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:include filename="$(find myrover)/urdf/common/inertias.xacro.urdf"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+         RIN LINK blueprint
+         Params:
+           suffix    – positional label, e.g. "lb", "rf"
+           mesh_file – path to the cylinder .dae
+    ═══════════════════════════════════════════════════════════════ -->
+  <xacro:macro name="rin_link" params="suffix mesh_file orient">
+    <link name="rin_link_${suffix}">
+      <xacro:cylinder_inertia m="1.0" r="0.2" h="0.55" xyz="0 0 0" rpy="${orient}"/>
+      <collision name="rin_${suffix}_collision">
+        <origin rpy="${orient}" xyz="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_file}" scale="0.20000 0.20000 0.27500"/>
+        </geometry>
+      </collision>
+      <visual name="rin_${suffix}">
+        <material name="None"/>
+        <origin rpy="${orient}" xyz="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_file}" scale="0.20000 0.20000 0.27500"/>
+        </geometry>
+      </visual>
+    </link>
+  </xacro:macro>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+         WHEEL LINK blueprint
+         Params:
+           suffix    – positional label, e.g. "lb", "rf"
+           mesh_file – path to the torus .dae
+           orient    – rpy string to mirror the mesh if needed
+                       right: "0 0 0"  |  left: "${pi} 0 0"
+    ═══════════════════════════════════════════════════════════════ -->
+  <xacro:macro name="wheel_link" params="suffix mesh_file orient">
+    <link name="wheel_link_${suffix}">
+      <xacro:cylinder_inertia m="2.0" r="0.32" h="0.2" xyz="0 0 0" rpy="${orient}"/>
+      <collision name="wheel_${suffix}_collision">
+        <origin rpy="${orient}" xyz="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_file}" scale="0.32000 0.32000 0.60000"/>
+        </geometry>
+      </collision>
+      <visual name="wheel_${suffix}">
+        <material name="None"/>
+        <origin rpy="${orient}" xyz="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_file}" scale="0.32000 0.32000 0.60000"/>
+        </geometry>
+      </visual>
+    </link>
+    <!-- No need to add ode/friction, gazebo already does the mapping -->
+    <gazebo reference="wheel_link_${suffix}">
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+      <kp>1000000.0</kp>
+      <kd>100.0</kd>
+      <minDepth>0.001</minDepth>
+      <maxVel>1.0</maxVel>
+      <fdir1>1 0 0</fdir1>
+    </gazebo>
+  </xacro:macro>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+         WHEEL ASSEMBLY blueprint  (rin + wheel + joint)
+         Combines the two link macros above and adds the continuous
+         joint that lets the wheel spin.  Use this in the robot file;
+         only call the individual macros if you need to swap one part.
+
+         Params:
+           suffix      – positional label, e.g. "lb", "rf"
+           rin_mesh    – path to the cylinder .dae
+           wheel_mesh  – path to the torus .dae
+           wheel_orient– rpy to flip the torus for the correct side
+                         right: "0 0 0"  |  left: "${pi} 0 0"
+           joint_axis  – spin axis direction
+                         right: "0 0 1"  |  left: "0 0 -1"
+    ═══════════════════════════════════════════════════════════════ -->
+  <xacro:macro name="wheel_assembly" params="suffix rin_mesh wheel_mesh rin_orient wheel_orient joint_axis wheel_joint_xyz wheel_joint_rpy">
+
+    <!-- Re-use the individual blueprints -->
+    <xacro:rin_link suffix="${suffix}" mesh_file="${rin_mesh}" orient="${rin_orient}"/>
+    <xacro:wheel_link suffix="${suffix}" mesh_file="${wheel_mesh}" orient="${wheel_orient}"/>
+
+    <!-- Continuous joint: rin → wheel -->
+    <joint name="wheel_link_${suffix}_joint" type="continuous">
+      <limit effort="2000.0" velocity="50.0"/>
+      <origin rpy="${wheel_joint_rpy}" xyz="${wheel_joint_xyz}"/>
+      <parent link="rin_link_${suffix}"/>
+      <child link="wheel_link_${suffix}"/>
+      <axis xyz="${joint_axis}"/>
+    </joint>
+
+    <transmission name="wheel_link_${suffix}_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="wheel_link_${suffix}_joint">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="wheel_link_${suffix}_motor">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+  </xacro:macro>
+
+</robot>
+
+
+<!-- Structure followed for rin xacro -->
+<!-- <link name="rin_link_lb">
+    <collision name="rin_lb_collision">
+      <origin rpy="0.00000 0.00000 -0.00000" xyz="0.00000 -0.00000 -0.00000"/>
+      <geometry>
+        <mesh filename="../meshes/dae/rim.dae" scale="0.20000 0.20000 0.27500"/>
+      </geometry>
+    </collision>
+    <visual name="rin_lb">
+      <material name="None"/>
+      <origin rpy="0.00000 0.00000 -0.00000" xyz="0.00000 -0.00000 -0.00000"/>
+      <geometry>
+        <mesh filename="../meshes/dae/rim.dae" scale="0.20000 0.20000 0.27500"/>
+      </geometry>
+    </visual>
+  </link> -->
+
+<!-- Structure followed for wheel xacro -->
+<!-- <link name="wheel_link_rf">
+    <collision name="wheel_rf_collision">
+      <origin rpy="0.00000 0.00000 0.00000" xyz="-0.00000 0.00000 0.00000"/>
+      <geometry>
+        <mesh filename="../meshes/dae/wheel.dae" scale="0.32000 0.32000 0.60000"/>
+      </geometry>
+    </collision>
+    <visual name="wheel_rf">
+      <material name="None"/>
+      <origin rpy="0.00000 0.00000 0.00000" xyz="-0.00000 0.00000 0.00000"/>
+      <geometry>
+        <mesh filename="../meshes/dae/wheel.dae" scale="0.32000 0.32000 0.60000"/>
+      </geometry>
+    </visual>
+  </link> -->

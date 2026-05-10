@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<robot name="roverv2" version="1.0"
+  xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Includes -->
+  <xacro:include filename="$(find myrover)/urdf/chassis/chassis.xacro.urdf"/>
+  <xacro:include filename="$(find myrover)/urdf/suspension_bar/bar.xacro.urdf"/>
+  <xacro:include filename="$(find myrover)/urdf/wheels/wheels.xacro.urdf"/>
+  <xacro:include filename="$(find myrover)/urdf/scara/scara_arm.xacro.urdf"/>
+  <xacro:include filename="$(find myrover)/urdf/gripper/gripper.xacro.urdf"/>
+  <xacro:include filename="$(find myrover)/urdf/sensors/camera.xacro.urdf"/>
+  <xacro:include filename="$(find myrover)/urdf/sensors/imu.xacro.urdf"/>
+  <xacro:include filename="$(find myrover)/urdf/sensors/lidar.xacro.urdf"/>
+  <xacro:include filename="$(find myrover)/urdf/sensors/gps.xacro.urdf"/>
+
+
+  <!-- Arguments -->
+  <xacro:arg name="robot_ns" default=""/>
+  <xacro:arg name="prefix" default=""/>
+  <xacro:property name="scara_effort_limit" value="3000"/>
+
+  <!-- Dummy material to silence RViz warnings -->
+  <material name="None">
+    <color rgba="0.8 0.8 0.8 1.0"/>
+  </material>
+
+  <!-- Chassis -->
+  <!-- Note: Left side has pi rotation and -1 axis. Right side has 0 rotation and 1 axis. -->
+  <xacro:chassis_link mesh_file="package://myrover/meshes/dae/chassis.dae"/>
+
+  <!-- Suspension Bars -->
+  <xacro:bar_link prefix="left" mesh_file="package://myrover/meshes/dae/bar.dae" orient_yaw="1.5708"/>
+  <xacro:bar_link prefix="right" mesh_file="package://myrover/meshes/dae/bar.dae" orient_yaw="-1.5708"/>
+
+  <!-- Wheels -->
+  <xacro:wheel_assembly suffix="lf" rin_mesh="package://myrover/meshes/dae/rim.dae" wheel_mesh="package://myrover/meshes/dae/wheel.dae" rin_orient="0 1.5708 1.5708" wheel_orient="0 0 0" joint_axis="0 0 1" wheel_joint_xyz="0 0.05074 0" wheel_joint_rpy="-1.5708 0 0"/>
+
+  <xacro:wheel_assembly suffix="lb" rin_mesh="package://myrover/meshes/dae/rim.dae" wheel_mesh="package://myrover/meshes/dae/wheel.dae" rin_orient="0 1.5708 1.5708" wheel_orient="0 0 0" joint_axis="0 0 1" wheel_joint_xyz="0 0.05074 0" wheel_joint_rpy="-1.5708 0 0"/>
+
+  <xacro:wheel_assembly suffix="rf" rin_mesh="package://myrover/meshes/dae/rim.dae" wheel_mesh="package://myrover/meshes/dae/wheel.dae" rin_orient="0 1.5708 -1.5708" wheel_orient="0 0 0" joint_axis="0 0 1" wheel_joint_xyz="0 -0.05074 0" wheel_joint_rpy="-1.5708 0 0"/>
+
+  <xacro:wheel_assembly suffix="rb" rin_mesh="package://myrover/meshes/dae/rim.dae" wheel_mesh="package://myrover/meshes/dae/wheel.dae" rin_orient="0 1.5708 -1.5708" wheel_orient="0 0 0" joint_axis="0 0 1" wheel_joint_xyz="0 -0.05074 0" wheel_joint_rpy="-1.5708 0 0"/>
+
+
+  <!-- Chassis to Bars -->
+  <joint name="left_bar_link_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0.69793 -0.17458"/>
+    <parent link="base_link"/>
+    <child link="left_bar_link"/>
+  </joint>
+
+  <joint name="right_bar_link_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 -0.69793 -0.17458"/>
+    <parent link="base_link"/>
+    <child link="right_bar_link"/>
+  </joint>
+
+  <!-- Bars to Rins (The rin -> wheel joints are handled inside wheel_assembly) -->
+  <joint name="rin_link_lf_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.99716 0.19748 -0.88193"/>
+    <parent link="left_bar_link"/>
+    <child link="rin_link_lf"/>
+  </joint>
+
+  <joint name="rin_link_lb_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.99655 0.19748 -0.88193"/>
+    <parent link="left_bar_link"/>
+    <child link="rin_link_lb"/>
+  </joint>
+
+  <joint name="rin_link_rf_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.99655 -0.19748 -0.88193"/>
+    <parent link="right_bar_link"/>
+    <child link="rin_link_rf"/>
+  </joint>
+
+  <joint name="rin_link_rb_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.99716 -0.19748 -0.88193"/>
+    <parent link="right_bar_link"/>
+    <child link="rin_link_rb"/>
+  </joint>
+
+
+  <!-- Fix to follow frame coordinates standard rep-103 -->
+  <!-- ROS Virtual Root -->
+  <link name="base_footprint"/>
+  <joint name="base_footprint_to_base_link" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 1.4"/>
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+  </joint>
+
+
+  <!-- Scada and Gripper -->
+  <xacro:scara_arm_assembly effort_limit="${scara_effort_limit}"/>
+
+  <!-- Mount SCARA Base to Chassis -->
+  <joint name="lower_link_joint" type="revolute">
+    <limit lower="-1.57000" upper="1.57000" effort="${scara_effort_limit}" velocity="5.00000"/>
+    <origin rpy="0 0 0" xyz="0.64487 -0.00489 1.00439"/>
+    <parent link="base_link"/>
+    <child link="lower_link"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <xacro:gripper_assembly />
+
+  <!-- Mount Gripper Wrist to SCARA End Effector -->
+  <joint name="wrist_link_joint" type="revolute">
+    <limit lower="-1.57000" upper="1.57000" effort="${scara_effort_limit}" velocity="5.00000"/>
+    <origin rpy="-3.14159 0 0" xyz="0.00441 -0.01276 -1.65394"/>
+    <parent link="end_link"/>
+    <child link="wrist_link"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!-- Sensors -->
+  <!-- Front camera -->
+  <xacro:camera prefix="cam_front" parent_link="base_link" topic="/cam_front/image" horizontal_fov="60" video_width="640" video_height="480">
+    <origin rpy="0 0 0" xyz="1.005 0 0.25"/>
+  </xacro:camera>
+
+  <!-- SCARA camera -->
+  <xacro:camera prefix="cam_scara" parent_link="wrist_link" topic="/cam_scara/image" horizontal_fov="60" video_width="640" video_height="480">
+    <origin rpy="0 -1.5708 0" xyz="0 0 0.2"/>
+  </xacro:camera>
+
+  <xacro:imu_sensor prefix="imu" parent_link="base_link" topic="/imu">
+    <origin rpy="0 0 0" xyz="0 0 0.2"/>
+  </xacro:imu_sensor>
+
+  <xacro:lidar prefix="lidar" parent_link="base_link" topic="/scan">
+    <origin rpy="0 0 0" xyz="0 0 0.32"/>
+  </xacro:lidar>
+
+  <xacro:gps prefix="gps" parent_link="base_link" topic="/gps/fix" update_rate="10">
+    <origin rpy="0 0 0" xyz="0 0 0.2"/>
+  </xacro:gps>
+
+  <!-- Adding wheel controllers -->
+  <xacro:include filename="$(find myrover)/urdf/ros2_control.xacro.urdf"/>
+  <xacro:arg name="config_controllers" default="$(find myrover)/config/roverv2_controllers.yaml"/>
+  <xacro:arg name="update_rate" default="20"/>
+  <xacro:ros2_control/>
+  <!-- <xacro:ros2_control config_controllers="$(arg config_controllers)" update_rate="$(arg update_rate)"/> -->
+
+</robot>

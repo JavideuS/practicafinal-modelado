@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- 
+    Generic Sensor Blueprint 
+    Handles: Joint, Link, Visual, Collision, and Inertials
+  -->
+  <xacro:macro name="sensor_base" params="prefix parent_link size color *origin">
+    
+    <joint name="${prefix}_joint" type="fixed">
+      <xacro:insert_block name="origin" />
+      <parent link="${parent_link}"/>
+      <child link="${prefix}_link"/>
+    </joint>
+
+    <link name="${prefix}_link">
+      <visual>
+        <geometry>
+          <box size="${size}"/>
+        </geometry>
+        <material name="${color}">
+          <color rgba="${'0 0 1 1' if color == 'blue' else '1 0 0 1'}"/>
+        </material>
+      </visual>
+      
+      <!-- Could be removed to avoid self-collision???¿¿¿ -->
+      <collision>
+        <geometry>
+          <box size="${size}"/>
+        </geometry>
+      </collision>
+
+      <inertial>
+        <mass value="0.01"/>
+        <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001"/>
+      </inertial>
+    </link>
+
+  </xacro:macro>
+
+</robot>

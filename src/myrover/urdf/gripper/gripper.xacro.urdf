@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<robot name="gripper" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:include filename="$(find myrover)/urdf/common/inertias.xacro.urdf"/>
+
+    <!-- Finger Link blueprint-->
+    <xacro:macro name="finger_link" params="prefix size_x size_y size_z">
+        <link name="${prefix}_finger_link">
+            <xacro:box_inertia m="0.1" x="${size_x}" y="${size_y}" z="${size_z}" xyz="0 0 0" rpy="0 0 -1.5708"/>
+            <collision name="${prefix}_finger_collision">
+                <origin rpy="0 0 -1.5708" xyz="0 0 0"/>
+                <geometry>
+                    <box size="${size_x} ${size_y} ${size_z}"/>
+                </geometry>
+            </collision>
+            <visual name="${prefix}_finger">
+                <material name="None"/>
+                <origin rpy="0 0 -1.5708" xyz="0 0 0"/>
+                <geometry>
+                    <box size="${size_x} ${size_y} ${size_z}"/>
+                </geometry>
+            </visual>
+        </link>
+        <gazebo reference="${prefix}_finger_link">
+            <mu1>100.0</mu1>
+            <mu2>100.0</mu2>
+            <kp>1000000.0</kp>
+            <kd>100.0</kd>
+            <minDepth>0.001</minDepth>
+            <maxVel>0.0</maxVel>
+        </gazebo>
+    </xacro:macro>
+
+    <!-- Wrist link blueprint-->
+    <xacro:macro name="wrist_link" params="size_x size_y size_z">
+        <link name="wrist_link">
+            <xacro:box_inertia m="0.2" x="${size_x}" y="${size_y}" z="${size_z}" xyz="0 0 0" rpy="0 0 -1.5708"/>
+            <collision name="wrist_collision">
+                <origin rpy="0 0 -1.5708" xyz="0 0 0"/>
+                <geometry>
+                    <box size="${size_x} ${size_y} ${size_z}"/>
+                </geometry>
+            </collision>
+            <visual name="wrist">
+                <material name="None"/>
+                <origin rpy="0 0 -1.5708" xyz="0 0 0"/>
+                <geometry>
+                    <box size="${size_x} ${size_y} ${size_z}"/>
+                </geometry>
+            </visual>
+        </link>
+    </xacro:macro>
+
+    <!-- Gripper Assembly Macro -->
+    <xacro:macro name="gripper_assembly" 
+                 params="wrist_x:=1.29612 wrist_y:=0.50000 wrist_z:=0.30000 
+                         finger_x:=0.29910 finger_y:=0.50000 finger_z:=0.40000">
+        <!-- Instantiate Fingers -->
+        <xacro:finger_link prefix="left" size_x="${finger_x}" size_y="${finger_y}" size_z="${finger_z}"/>
+        <xacro:finger_link prefix="right" size_x="${finger_x}" size_y="${finger_y}" size_z="${finger_z}"/>
+        <xacro:wrist_link size_x="${wrist_x}" size_y="${wrist_y}" size_z="${wrist_z}"/>
+
+        <!-- Connect Fingers to Wrist -->
+        <joint name="left_finger_link_joint" type="prismatic">
+            <limit lower="0.00000" upper="0.15000" effort="100.00000" velocity="0.50000"/>
+            <origin rpy="0 0 0" xyz="0 0.49500 0.34690"/>
+            <parent link="wrist_link"/>
+            <child link="left_finger_link"/>
+            <axis xyz="0 -1 0"/>
+        </joint>
+
+        <joint name="right_finger_link_joint" type="prismatic">
+            <limit lower="0.00000" upper="0.15000" effort="100.00000" velocity="0.50000"/>
+            <origin rpy="0 0 0" xyz="-0.00023 -0.49765 0.34690"/>
+            <parent link="wrist_link"/>
+            <child link="right_finger_link"/>
+            <axis xyz="0 1 0"/>
+        </joint>
+
+    </xacro:macro>
+
+</robot>
+
+<!-- Structure Followed -->
+<!-- <link name="wrist_link">
+    <collision name="wrist_collision">
+      <origin rpy="-0.00000 0.00000 0.00000" xyz="-0.00000 0.00000 0.00000"/>
+      <geometry>
+        <box size="1.29612 0.50000 0.30000"/>
+      </geometry>
+    </collision>
+    <visual name="wrist">
+      <material name="None"/>
+      <origin rpy="-0.00000 0.00000 0.00000" xyz="-0.00000 0.00000 0.00000"/>
+      <geometry>
+        <box size="1.29612 0.50000 0.30000"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="left_finger_link">
+    <collision name="left_finger_collision">
+      <origin rpy="-0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+      <geometry>
+        <box size="0.29910 0.50000 0.40000"/>
+      </geometry>
+    </collision>
+    <visual name="left_finger">
+      <material name="None"/>
+      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+      <geometry>
+        <box size="0.29910 0.50000 0.40000"/>
+      </geometry>
+    </visual>
+  </link> -->

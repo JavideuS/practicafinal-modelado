@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<robot name="scara_arm"
+    xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:include filename="$(find myrover)/urdf/common/inertias.xacro.urdf"/>
+
+
+    <!-- Base link blueprint -->
+    <xacro:macro name="lower_link" params="radius length">
+        <link name="lower_link">
+            <xacro:cylinder_inertia m="0.8" r="${radius}" h="${length}" xyz="0 0 0" rpy="0 0 -1.5708"/>
+            <collision name="base_collision">
+                <origin rpy="0 0 -1.5708" xyz="0 0 0"/>
+                <geometry>
+                    <cylinder radius="${radius}" length="${length}"/>
+                </geometry>
+            </collision>
+            <visual name="base">
+                <material name="None"/>
+                <origin rpy="0 0 -1.5708" xyz="0 0.00489 0"/>
+                <geometry>
+                    <cylinder radius="${radius}" length="${length}"/>
+                </geometry>
+            </visual>
+        </link>
+    </xacro:macro>
+
+    <!-- Middle link blueprint -->
+    <xacro:macro name="middle_link" params="mesh_file">
+        <link name="middle_link">
+            <xacro:cylinder_inertia m="0.5" r="0.25" h="0.2" xyz="0 0 0" rpy="0 0 -1.5708"/>
+            <collision name="middle_collision">
+                <origin rpy="0 0 -1.5708" xyz="0 0 0"/>
+                <geometry>
+                    <mesh filename="${mesh_file}" scale="0.25000 0.16250 0.10000"/>
+                </geometry>
+            </collision>
+            <visual name="middle">
+                <material name="None"/>
+                <origin rpy="0 0 -1.5708" xyz="0 0 0"/>
+                <geometry>
+                    <mesh filename="${mesh_file}" scale="0.25000 0.16250 0.10000"/>
+                </geometry>
+            </visual>
+        </link>
+    </xacro:macro>
+
+    <!-- Upper link blueprint -->
+    <xacro:macro name="upper_link" params="mesh_file">
+        <link name="upper_link">
+            <xacro:cylinder_inertia m="0.5" r="0.25" h="0.2" xyz="0 0 0" rpy="0 0 -1.5708"/>
+            <collision name="upper_collision">
+                <origin rpy="0 0 -1.5708" xyz="0 0 0"/>
+                <geometry>
+                    <mesh filename="${mesh_file}" scale="0.25000 0.16250 0.10000"/>
+                </geometry>
+            </collision>
+            <visual name="upper">
+                <material name="None"/>
+                <origin rpy="0 0 -1.5708" xyz="0 0 0"/>
+                <geometry>
+                    <mesh filename="${mesh_file}" scale="0.25000 0.16250 0.10000"/>
+                </geometry>
+            </visual>
+        </link>
+    </xacro:macro>
+
+    <!-- End link blueprint -->
+    <xacro:macro name="end_link" params="radius length">
+        <link name="end_link">
+            <xacro:cylinder_inertia m="1.0" r="${radius}" h="${length}" xyz="0 0 0" rpy="0 0 -1.5708"/>
+            <collision name="end_collision">
+                <origin rpy="0 0 -1.5708" xyz="0 0 0"/>
+                <geometry>
+                    <cylinder radius="${radius}" length="${length}"/>
+                </geometry>
+            </collision>
+            <visual name="end">
+                <material name="None"/>
+                <origin rpy="0 0 -1.5708" xyz="0 0 0"/>
+                <geometry>
+                    <cylinder radius="${radius}" length="${length}"/>
+                </geometry>
+            </visual>
+        </link>
+    </xacro:macro>
+
+    <xacro:macro name="scara_arm_assembly" params="base_radius:=0.20000 base_length:=1.40000 middle_mesh:=package://myrover/meshes/dae/scara_middle.dae upper_mesh:=package://myrover/meshes/dae/scara_upper.dae end_radius:=0.14955 end_length:=3.00000 effort_limit:=1000.00000">
+
+        <xacro:lower_link radius="${base_radius}" length="${base_length}"/>
+        <xacro:middle_link mesh_file="${middle_mesh}"/>
+        <xacro:upper_link mesh_file="${upper_mesh}"/>
+        <xacro:end_link radius="${end_radius}" length="${end_length}"/>
+
+        <!-- Internal Arm Joints -->
+        <joint name="middle_link_joint" type="revolute">
+            <limit lower="-1.57000" upper="1.57000" effort="${effort_limit}" velocity="15.00000"/>
+            <origin rpy="0 0 0" xyz="-0.11290 0.00489 0.60531"/>
+            <parent link="lower_link"/>
+            <child link="middle_link"/>
+            <axis xyz="0 0 1"/>
+        </joint>
+
+        <joint name="upper_link_joint" type="revolute">
+            <limit lower="-1.57000" upper="1.57000" effort="${effort_limit}" velocity="15.00000"/>
+            <origin rpy="0 0 0" xyz="0.97301 0 0.19774"/>
+            <parent link="middle_link"/>
+            <child link="upper_link"/>
+            <axis xyz="0 0 1"/>
+        </joint>
+
+        <joint name="end_link_joint" type="prismatic">
+            <limit lower="0.00000" upper="2.50000" effort="${effort_limit}" velocity="15.00000"/>
+            <origin rpy="0 0 0" xyz="0.91072 0 1.30231"/>
+            <parent link="upper_link"/>
+            <child link="end_link"/>
+            <axis xyz="0 0 -1"/>
+        </joint>
+
+    </xacro:macro>
+
+</robot>

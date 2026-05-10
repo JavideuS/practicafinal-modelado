@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+build/
+install/
+log/
+*.zip
+modeladop3.mp4
+enunciado_*.pdf
+tarea.txt
+src/README.md
+src/myrover/plan.md

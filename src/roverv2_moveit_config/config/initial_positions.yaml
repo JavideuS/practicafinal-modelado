@@ -1,0 +1,10 @@
+# Default initial positions for roverv2's ros2_control fake system
+
+initial_positions:
+  end_link_joint: 0
+  left_finger_link_joint: 0
+  lower_link_joint: 0
+  middle_link_joint: 0
+  right_finger_link_joint: 0
+  upper_link_joint: 0
+  wrist_link_joint: 0

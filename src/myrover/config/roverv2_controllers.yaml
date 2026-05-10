@@ -1,0 +1,79 @@
+# This config file is used by ros2_control
+controller_manager:
+  ros__parameters:
+    update_rate: 20 # Hz
+    use_sim_time: true
+    scara_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    gripper_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    # We add differential drive controller, the others are same from moveit_conf
+    rover_diff_drive_controller:
+      type: diff_drive_controller/DiffDriveController
+
+# Controllers definition
+/**/rover_diff_drive_controller:
+  ros__parameters:
+    type: diff_drive_controller/DiffDriveController
+    use_stamped_vel: true
+    use_sim_time: true
+    publish_rate: 50.0
+    left_wheel_names: ["wheel_link_lf_joint", "wheel_link_lb_joint"]
+    right_wheel_names: ["wheel_link_rf_joint", "wheel_link_rb_joint"]
+    wheel_separation: 1.90
+    wheel_radius: 0.30
+    wheel_separation_multiplier: 1.0
+    left_wheel_radius_multiplier: 1.0
+    right_wheel_radius_multiplier: 1.0
+
+    # Base frame_id
+    base_frame_id: base_footprint
+    # odom tf will be published by direct laser odometry
+    enable_odom_tf: true
+    # Publish limited velocity
+    publish_limited_velocity: true
+    linear:
+      x:
+        has_velocity_limits: true
+        max_velocity: 1.5
+        has_acceleration_limits: true
+        max_acceleration: 2.0
+    angular:
+      z:
+        has_velocity_limits: true
+        max_velocity: 1.0
+        has_acceleration_limits: true
+        max_acceleration: 2.0
+
+# These are the same from move it conf, just add /** to be used for every node
+/**/scara_controller:
+  ros__parameters:
+    joints:
+      - lower_link_joint
+      - middle_link_joint
+      - upper_link_joint
+      - end_link_joint
+      - wrist_link_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    allow_nonzero_velocity_at_trajectory_end: true
+
+/**/gripper_controller:
+  ros__parameters:
+    joints:
+      - left_finger_link_joint
+      - right_finger_link_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    allow_nonzero_velocity_at_trajectory_end: true

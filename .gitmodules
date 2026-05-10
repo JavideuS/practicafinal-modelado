@@ -1,0 +1,3 @@
+[submodule "src/urjc-excavation-world"]
+	path = src/urjc-excavation-world
+	url = https://github.com/juanscelyg/urjc-excavation-world.git

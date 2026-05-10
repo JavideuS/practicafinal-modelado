@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!--
+  chassis.xacro.urdf
+  ─────────────────────────────────────────────────────────────────────────────
+  Blueprint for the main chassis (body) link of the rover.
+
+  Macros defined here:
+    · chassis_link  – the chassis link (geometry only, no joints)
+
+  Joints note
+  ───────────
+  All joints connecting the chassis to bars, arm base, etc. are defined
+-->
+<robot name="chassis" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         CHASSIS LINK blueprint
+         Params:
+           mesh_file – path to the chassis .dae
+                       $(find myrover)/meshes/dae/chassis.dae
+    ═══════════════════════════════════════════════════════════════ -->
+    <xacro:macro name="chassis_link" params="mesh_file">
+        <link name="base_link">
+            <inertial>
+                <origin rpy="0 0 0" xyz="-0.47912 0.00744 0.08377"/>
+                <mass value="40.00000"/>
+                <inertia ixx="15.78408" ixy="-0.35473" ixz="5.54550" 
+                         iyy="53.62559" iyz="0.05125" 
+                         izz="66.30511"/>
+            </inertial>
+            <collision name="base_collision">
+                <origin rpy="0 0 -1.5708" xyz="0 0.01279 0"/>
+                <geometry>
+                    <mesh filename="${mesh_file}" scale="0.55000 1.00000 0.30000"/>
+                </geometry>
+            </collision>
+            <visual name="base_visual">
+                <material name="None"/>
+                <origin rpy="0 0 -1.5708" xyz="0 0.01279 0"/>
+                <geometry>
+                    <mesh filename="${mesh_file}" scale="0.55000 1.00000 0.30000"/>
+                </geometry>
+            </visual>
+        </link>
+    </xacro:macro>
+
+</robot>
+
+<!-- Reference URDF structure:
+<link name="Chassis_link">
+    <collision name="Chassis_collision">
+      <origin rpy="0.00000 0.00000 0.00000" xyz="-0.01279 0.00000 -0.00000"/>
+      <geometry>
+        <mesh filename="../meshes/dae/chassis.dae" scale="0.55000 1.00000 0.30000"/>
+      </geometry>
+    </collision>
+    <visual name="Chassis">
+      <material name="None"/>
+      <origin rpy="0.00000 0.00000 0.00000" xyz="-0.01279 0.00000 -0.00000"/>
+      <geometry>
+        <mesh filename="../meshes/dae/chassis.dae" scale="0.55000 1.00000 0.30000"/>
+      </geometry>
+    </visual>
+</link>
+
+Instance example:
+<xacro:chassis_link mesh_file="$(find myrover)/meshes/dae/chassis.dae"/>
+-->

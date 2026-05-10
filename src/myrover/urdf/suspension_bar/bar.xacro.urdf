@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<!--
+  bar.xacro.urdf
+  ─────────────────────────────────────────────────────────────────────────────
+  Blueprint for the suspension bar link that connects the chassis to the
+  wheel assemblies.
+
+  Macros defined here:
+    · bar_link  – the support arm link (geometry only, no joints)
+
+  Joints note
+  ───────────
+  Joints between the chassis and each bar, and between each bar and its
+  rin_link, are defined in the main robot assembly file.
+  This macro only describes the shape of the bar itself.
+
+  Scale note
+  ──────────
+  The bar mesh scale is: 0.07500 0.85000 0.15000
+  (symmetric bar mesh: bar.dae)
+-->
+<robot name="bar" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         BAR LINK blueprint
+         Params:
+           prefix    – side label: "left" or "right"
+           mesh_file – path to the symmetric bar .dae
+                       $(find myrover)/meshes/dae/bar.dae
+    ═══════════════════════════════════════════════════════════════ -->
+    <xacro:macro name="bar_link" params="prefix mesh_file orient_yaw">
+        <link name="${prefix}_bar_link">
+            <xacro:if value="${prefix == 'left'}">
+                <inertial>
+                    <origin rpy="0 0 0" xyz="0.00008 -0.01136 -0.01787"/>
+                    <mass value="4.00000"/>
+                    <inertia ixx="0.09791" ixy="0.00001" ixz="0.00007" 
+                             iyy="1.40007" iyz="0.00211" 
+                             izz="1.32049"/>
+                </inertial>
+            </xacro:if>
+            <xacro:if value="${prefix == 'right'}">
+                <inertial>
+                    <!-- Mathematically rotated by -90 deg (orient_yaw="-1.5708") -->
+                    <origin rpy="0 0 0" xyz="-0.00008 0.01136 -0.01787"/>
+                    <mass value="4.00000"/>
+                    <inertia ixx="0.09791" ixy="0.00001" ixz="-0.00007" 
+                             iyy="1.40007" iyz="-0.00211" 
+                             izz="1.32049"/>
+                </inertial>
+            </xacro:if>
+            <collision name="${prefix}_bar_collision">
+                <origin rpy="0 0 ${orient_yaw}" xyz="0 0 0"/>
+                <geometry>
+                    <mesh filename="${mesh_file}" scale="0.07500 0.85000 0.15000"/>
+                </geometry>
+            </collision>
+            <visual name="${prefix}_bar">
+                <material name="None"/>
+                <origin rpy="0 0 ${orient_yaw}" xyz="0 0 0"/>
+                <geometry>
+                    <mesh filename="${mesh_file}" scale="0.07500 0.85000 0.15000"/>
+                </geometry>
+            </visual>
+        </link>
+    </xacro:macro>
+
+</robot>
+
+<!-- Reference URDF structure:
+<link name="right_bar_link">
+    <collision name="right_bar_collision">
+      <origin rpy="0.00000 0.00000 0.00000" xyz="-0.00000 -0.00000 0.00000"/>
+      <geometry>
+        <mesh filename="../meshes/dae/bar.dae" scale="0.07500 0.85000 0.15000"/>
+      </geometry>
+    </collision>
+    <visual name="right_bar">
+      <material name="None"/>
+      <origin rpy="0.00000 0.00000 0.00000" xyz="-0.00000 -0.00000 0.00000"/>
+      <geometry>
+        <mesh filename="../meshes/dae/bar.dae" scale="0.07500 0.85000 0.15000"/>
+      </geometry>
+    </visual>
+</link>
+
+Instance example:
+<xacro:bar_link prefix="right" mesh_file="$(find myrover)/meshes/dae/bar.dae"/>
+<xacro:bar_link prefix="left"  mesh_file="$(find myrover)/meshes/dae/bar.dae"/>
+-->

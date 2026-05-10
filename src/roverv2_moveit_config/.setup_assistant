@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: myrover
+    relative_path: robots/roverv2.xacro.urdf
+  srdf:
+    relative_path: config/roverv2.srdf
+  package_settings:
+    author_name: JavideuS
+    author_email: javi.rm2005@gmail.com
+    generated_timestamp: 1778244880

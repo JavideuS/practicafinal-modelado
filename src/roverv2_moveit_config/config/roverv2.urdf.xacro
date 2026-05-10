@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="roverv2">
+    <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+
+    <!-- Import roverv2 urdf file -->
+    <xacro:include filename="$(find myrover)/robots/roverv2.xacro.urdf" />
+
+    <!-- Import srdf -->
+    <xacro:include filename="roverv2.srdf" />
+
+    <!-- Import control_xacro -->
+    <!-- Already included in launcher -->
+    <!-- <xacro:include filename="roverv2.ros2_control.xacro" /> -->
+    <!-- <xacro:roverv2_ros2_control name="ScaraSystem" initial_positions_file="$(arg initial_positions_file)"/> -->
+
+</robot>
